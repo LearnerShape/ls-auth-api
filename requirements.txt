@@ -1,0 +1,14 @@
+celery
+flask
+sqlalchemy
+psycopg2
+numpy
+python-dateutil
+pytz
+bs4
+gunicorn
+flask-migrate 
+flask-sqlalchemy
+marshmallow
+flask-smorest
+Flask-CeleryExt
