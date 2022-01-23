@@ -20,10 +20,11 @@ from .shared import OrderedBaseSchema
 
 class CredentialSchema(OrderedBaseSchema):
     id = fields.UUID(dump_only=True)
+    holder = fields.UUID()
     skill = fields.String()
-    issuer = fields.String()
+    issuer = fields.UUID()
     status = fields.String()
 
 
 class CredentialManySchema(OrderedBaseSchema):
-    credentialss = fields.List(fields.Nested(lambda: CredentialSchema))
+    credentials = fields.List(fields.Nested(lambda: CredentialSchema))

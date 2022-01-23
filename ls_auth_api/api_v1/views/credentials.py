@@ -18,23 +18,28 @@ from flask import g
 from flask_smorest import abort
 from marshmallow import ValidationError
 
+import pdb
+
 from ls_auth_api.api_v1 import api
 from ls_auth_api.api_v1.schemas import CredentialSchema, CredentialManySchema
+from ls_auth_api.api_v1.utils import credentials as credential_utils
 
 
 @api.route("users/<user_uuid>/credentials/")
 class CredentialsAPI(MethodView):
     @api.response(200, CredentialManySchema)
-    def get(self):
+    def get(self, user_uuid):
         """Get Credentials
 
         Get a list of credentails for a user"""
-        pass
+        credentials = credential_utils.get_details(user_uuid)
+        return {"credentials": credentials}
 
     @api.arguments(CredentialSchema, location="json")
     @api.response(200, CredentialSchema)
-    def post(self, credential_data):
+    def post(self, credential_data, user_uuid):
         """Create credential
 
         Create a new credential"""
-        pass
+        new_credential = credential_utils.create(user_uuid, credential_data)
+        return new_credential

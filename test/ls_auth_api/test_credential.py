@@ -13,48 +13,42 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from collections import namedtuple
-from datetime import datetime
 import pdb
-import pytest
+from datetime import datetime
 
 
-from ls_auth_api import create_app
-
-access_id, secret_key = "a", "b"
-
-
-@pytest.fixture(scope="session")
-def api_client():
-    app = create_app()
-    app.config["API_ACCESS_ID"], app.config["API_SECRET_KEY"] = access_id, secret_key
-    with app.test_client() as client:
-        yield client
+def test_credentials_get_secure(api_client, api_users):
+    api_user1, api_user2 = api_users
+    response = api_client.get(
+        f"/api/v1/users/{api_user1['id']}/credentials/",
+    )
+    assert response.status_code == 403
+    assert response.json["status_code"] == 403
 
 
-@pytest.fixture(scope="session")
-def api_keys():
-    auth = namedtuple("auth", ["access", "secret"])
-    yield auth(access_id, secret_key)
-
-
-@pytest.fixture(scope="module")
-def api_users(api_client, api_keys):
-    name = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    user = {"name": f"user_{name}_1", "email": f"user_{name}_1@test.com"}
-    response = api_client.post(
-        f"/api/v1/users/",
+def test_credentials_get(api_client, api_keys, api_users):
+    api_user1, api_user2 = api_users
+    response = api_client.get(
+        f"/api/v1/users/{api_user1['id']}/credentials/",
         headers={"X-API-Key": api_keys.access, "X-Auth-Token": api_keys.secret},
-        json=user,
     )
     assert response.status_code == 200
-    user1 = response.json
-    user = {"name": f"user_{name}_2", "email": f"user_{name}_2@test.com"}
+    assert "credentials" in response.json.keys()
+
+
+def test_credentials_post(api_client, api_keys, api_users):
+    api_user1, api_user2 = api_users
+    credential = {
+        "holder": api_user1["id"],
+        "skill": "skill A",
+        "status": "test",
+        "issuer": api_user2["id"],
+    }
     response = api_client.post(
-        f"/api/v1/users/",
+        f"/api/v1/users/{api_user1['id']}/credentials/",
         headers={"X-API-Key": api_keys.access, "X-Auth-Token": api_keys.secret},
-        json=user,
+        json=credential,
     )
     assert response.status_code == 200
-    user2 = response.json
-    return (user1, user2)
+    for i in ["id", "holder", "skill", "status", "issuer"]:
+        assert i in response.json.keys()

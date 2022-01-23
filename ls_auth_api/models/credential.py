@@ -31,5 +31,6 @@ class Credential(db.Model):
         nullable=False,
     )
     skill = db.Column(db.Text)
-    issuer = db.Column(db.Text)
+    issuer = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"))
     status = db.Column(db.Text)
+    holder = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"))
