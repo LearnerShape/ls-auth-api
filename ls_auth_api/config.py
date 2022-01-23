@@ -25,6 +25,15 @@ SQLALCHEMY_DATABASE_URI = os.environ.get(
 )
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+# API config
+API_ACCESS_ID = os.environ.get(
+    "API_ACCESS_ID",
+)
+API_SECRET_KEY = os.environ.get("API_SECRET_KEY")
+if ENV != "development":
+    assert API_ACCESS_ID, "API Access ID must be configured"
+    assert API_SECRET_KEY, "API Secret key must be configured"
+
 # Documentation config
 API_TITLE = "Learnershape Skills Authentication API"
 API_VERSION = "1"

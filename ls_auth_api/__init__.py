@@ -17,21 +17,16 @@
 import os
 
 from flask import Flask
-from flask_celeryext import FlaskCeleryExt
 from flask_smorest import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
-#from lsgraph.celery_utils import make_celery
-
-#ext_celery = FlaskCeleryExt(create_celery_app=make_celery)
 
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config.from_object("ls-auth-api.config")
+    app.config.from_object("ls_auth_api.config")
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -74,10 +69,11 @@ def create_app(test_config=None):
         "AuthToken", {"type": "apiKey", "in": "header", "name": "X-Auth-Token"}
     )
 
-    #from . import api_v1
+    from . import api_v1
 
-    #api.register_blueprint(api_v1.api)
-    @app.route('/')
+    api.register_blueprint(api_v1.api)
+
+    @app.route("/")
     def index():
         return "Hello"
 
