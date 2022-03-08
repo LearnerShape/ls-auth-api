@@ -17,37 +17,42 @@ import pdb
 from datetime import datetime
 
 
-def test_credentials_get_secure(api_client, api_users):
+def test_skills_get_secure(api_client, api_users):
     api_user1, api_user2 = api_users
     response = api_client.get(
-        f"/api/v1/users/{api_user1['id']}/credentials/",
+        f"/api/v1/users/{api_user1['id']}/skills/",
     )
     assert response.status_code == 403
     assert response.json["status_code"] == 403
 
 
-def test_credentials_get(api_client, api_keys, api_users):
+def test_skills_get(api_client, api_keys, api_users):
     api_user1, api_user2 = api_users
     response = api_client.get(
-        f"/api/v1/users/{api_user1['id']}/credentials/",
+        f"/api/v1/users/{api_user1['id']}/skills/",
         headers={"X-API-Key": api_keys.access, "X-Auth-Token": api_keys.secret},
     )
     assert response.status_code == 200
-    assert "credentials" in response.json.keys()
+    assert "skills" in response.json.keys()
 
 
-def test_credentials_post(api_client, api_keys, api_users, skills):
+def test_skills_post(api_client, api_keys, api_users):
     api_user1, api_user2 = api_users
-    credential = {
-        "holder": api_user1["id"],
-        "skill": skills[api_user1["id"]][0]["id"],
-        "issuer": api_user1["id"],
+    skill = {
+        "author_id": api_user1["id"],
+        "skill_type": "skill A",
+        "skill_details": {"name": "test", "subject": "testing"},
     }
     response = api_client.post(
-        f"/api/v1/users/{api_user1['id']}/credentials/",
+        f"/api/v1/users/{api_user1['id']}/skills/",
         headers={"X-API-Key": api_keys.access, "X-Auth-Token": api_keys.secret},
-        json=credential,
+        json=skill,
     )
     assert response.status_code == 200
-    for i in ["id", "holder", "skill", "issuer", "status"]:
+    for i in [
+        "id",
+        "author_id",
+        "skill_type",
+        "skill_details",
+    ]:
         assert i in response.json.keys()

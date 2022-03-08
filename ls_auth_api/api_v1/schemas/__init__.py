@@ -15,3 +15,4 @@
 
 from .user import UserSchema, UserManySchema
 from .credential import CredentialSchema, CredentialManySchema
+from .skill import SkillSchema, SkillManySchema

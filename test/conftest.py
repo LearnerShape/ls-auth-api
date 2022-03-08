@@ -58,3 +58,30 @@ def api_users(api_client, api_keys):
     assert response.status_code == 200
     user2 = response.json
     return (user1, user2)
+
+
+def create_skill(api_client, api_keys, user, skill_name="Test skill"):
+    """Create a skill for the user supplied"""
+    skill = {
+        "author_id": user["id"],
+        "skill_type": "skill A",
+        "skill_details": {"name": skill_name, "subject": "testing"},
+    }
+    response = api_client.post(
+        f"/api/v1/users/{user['id']}/skills/",
+        headers={"X-API-Key": api_keys.access, "X-Auth-Token": api_keys.secret},
+        json=skill,
+    )
+    assert response.status_code == 200
+    return response.json
+
+
+@pytest.fixture(scope="module")
+def skills(api_client, api_keys, api_users):
+    output = {}
+    for user in api_users:
+        output[user["id"]] = [
+            create_skill(api_client, api_keys, user, "Test skill 1"),
+            create_skill(api_client, api_keys, user, "Test skill 2"),
+        ]
+    return output

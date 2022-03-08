@@ -21,3 +21,4 @@ db = SQLAlchemy()
 
 from .user import User
 from .credential import Credential
+from .skill import Skill

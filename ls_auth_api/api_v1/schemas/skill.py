@@ -13,7 +13,17 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .error import handle_error
-from .users import UsersAPI
-from .credentials import CredentialsAPI
-from .skills import SkillsAPI
+from marshmallow import fields
+
+from .shared import OrderedBaseSchema
+
+
+class SkillSchema(OrderedBaseSchema):
+    id = fields.UUID(dump_only=True)
+    author_id = fields.UUID()
+    skill_type = fields.String()
+    skill_details = fields.Dict()
+
+
+class SkillManySchema(OrderedBaseSchema):
+    skills = fields.List(fields.Nested(lambda: SkillSchema))

@@ -21,9 +21,9 @@ from .shared import OrderedBaseSchema
 class CredentialSchema(OrderedBaseSchema):
     id = fields.UUID(dump_only=True)
     holder = fields.UUID()
-    skill = fields.String()
+    skill = fields.UUID()
     issuer = fields.UUID()
-    status = fields.String()
+    status = fields.String(dump_only=True)
 
 
 class CredentialManySchema(OrderedBaseSchema):

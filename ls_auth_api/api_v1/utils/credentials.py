@@ -22,14 +22,22 @@ from ls_auth_api.models import db
 def format_credential(credential):
     """Format a credential record to the schema"""
     return {
-        i: credential.__getattribute__(i)
-        for i in ["id", "skill", "issuer", "status", "holder"]
+        i: credential.__getattribute__(j)
+        for i, j in [
+            ["id", "id"],
+            ["skill", "skill_id"],
+            ["issuer", "issuer_id"],
+            ["status", "status"],
+            ["holder", "holder_id"],
+        ]
     }
 
 
 def get_details(user_uuid, credential_id=None):
     """Get schema-formatted details on credentials"""
-    credentials = models.Credential.query.filter(models.Credential.holder == user_uuid)
+    credentials = models.Credential.query.filter(
+        models.Credential.holder_id == user_uuid
+    )
     if credential_id:
         credentials = credentials.filter(models.Credential.id.in_(credential_id))
     credentials = credentials.all()
@@ -42,10 +50,9 @@ def get_details(user_uuid, credential_id=None):
 def create(user_uuid, credential_data):
     """Create a new credential"""
     new_credential = models.Credential(
-        skill=credential_data["skill"],
-        issuer=credential_data["issuer"],
-        status=credential_data["status"],
-        holder=credential_data["holder"],
+        skill_id=credential_data["skill"],
+        issuer_id=credential_data["issuer"],
+        holder_id=credential_data["holder"],
     )
     db.session.add(new_credential)
     db.session.commit()

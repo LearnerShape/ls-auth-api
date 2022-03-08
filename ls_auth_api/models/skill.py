@@ -13,7 +13,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .error import handle_error
-from .users import UsersAPI
-from .credentials import CredentialsAPI
-from .skills import SkillsAPI
+
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+
+from . import db
+
+
+class Skill(db.Model):
+    """A skill record
+
+    A skill from which credentials can be generated"""
+
+    id = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+    )
+    author_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"))
+    skill_type = db.Column(db.Text)
+    skill_details = db.Column(db.JSON)
