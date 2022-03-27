@@ -18,15 +18,10 @@ from marshmallow import fields
 from .shared import OrderedBaseSchema
 
 
-class CredentialSchema(OrderedBaseSchema):
+class PresentationSchema(OrderedBaseSchema):
     id = fields.UUID(dump_only=True)
-    holder = fields.UUID()
-    skill = fields.UUID()
-    issuer = fields.UUID()
-    status = fields.String(
-        dump_only=True
-    )  # Use for self-credentialing / requested / etc?
+    owner = fields.UUID()
 
 
-class CredentialManySchema(OrderedBaseSchema):
-    credentials = fields.List(fields.Nested(lambda: CredentialSchema))
+class PresentationManySchema(OrderedBaseSchema):
+    presentations = fields.List(fields.Nested(lambda: PresentationSchema))

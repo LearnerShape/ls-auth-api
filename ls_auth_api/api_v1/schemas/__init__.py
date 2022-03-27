@@ -16,3 +16,5 @@
 from .user import UserSchema, UserManySchema
 from .credential import CredentialSchema, CredentialManySchema
 from .skill import SkillSchema, SkillManySchema
+from .DID import DIDSchema, DIDManySchema
+from .presentation import PresentationSchema, PresentationManySchema

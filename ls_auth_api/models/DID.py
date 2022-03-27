@@ -13,20 +13,26 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from marshmallow import fields
 
-from .shared import OrderedBaseSchema
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
-
-class CredentialSchema(OrderedBaseSchema):
-    id = fields.UUID(dump_only=True)
-    holder = fields.UUID()
-    skill = fields.UUID()
-    issuer = fields.UUID()
-    status = fields.String(
-        dump_only=True
-    )  # Use for self-credentialing / requested / etc?
+from . import db
 
 
-class CredentialManySchema(OrderedBaseSchema):
-    credentials = fields.List(fields.Nested(lambda: CredentialSchema))
+class DID(db.Model):
+    """A DID record
+
+    A distributed ID for use in credential creation"""
+
+    id = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+    )
+    DID = db.Column(db.Text)
+    owner_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"))
+    primary = db.Column(db.Boolean)
+    status = db.Column(db.Text)
