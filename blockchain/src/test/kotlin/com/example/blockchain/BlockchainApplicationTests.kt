@@ -1,13 +1,13 @@
-package com.example.blockchain
+// package com.example.blockchain
 
-import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
+// import org.junit.jupiter.api.Test
+// import org.springframework.boot.test.context.SpringBootTest
 
-@SpringBootTest
-class BlockchainApplicationTests {
+// @SpringBootTest
+// class BlockchainApplicationTests {
 
-	@Test
-	fun contextLoads() {
-	}
+// 	@Test
+// 	fun contextLoads() {
+// 	}
 
-}
+// }
