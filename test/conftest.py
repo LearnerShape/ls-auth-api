@@ -78,6 +78,7 @@ def create_skill(api_client, api_keys, user, skill_name="Test skill"):
 
 @pytest.fixture(scope="module")
 def skills(api_client, api_keys, api_users):
+    """Create two sample skills for each user"""
     output = {}
     for user in api_users:
         output[user["id"]] = [

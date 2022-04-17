@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .user import UserSchema, UserManySchema
-from .credential import CredentialSchema, CredentialManySchema
+from .credential import CredentialSchema, CredentialManySchema, CredentialUpdateSchema
 from .skill import SkillSchema, SkillManySchema
 from .DID import DIDSchema, DIDManySchema
 from .presentation import PresentationSchema, PresentationManySchema

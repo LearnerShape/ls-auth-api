@@ -17,11 +17,15 @@ from flask.views import MethodView
 from flask import g
 from flask_smorest import abort
 from marshmallow import ValidationError
-
+import uuid
 import pdb
 
 from ls_auth_api.api_v1 import api
-from ls_auth_api.api_v1.schemas import CredentialSchema, CredentialManySchema
+from ls_auth_api.api_v1.schemas import (
+    CredentialSchema,
+    CredentialManySchema,
+    CredentialUpdateSchema,
+)
 from ls_auth_api.api_v1.utils import credentials as credential_utils
 
 
@@ -32,6 +36,7 @@ class CredentialsAPI(MethodView):
         """Get Credentials
 
         Get a list of credentails for a user"""
+        user_uuid = uuid.UUID(user_uuid)
         credentials = credential_utils.get_details(user_uuid)
         return {"credentials": credentials}
 
@@ -41,5 +46,20 @@ class CredentialsAPI(MethodView):
         """Create credential
 
         Create a new credential"""
+        user_uuid = uuid.UUID(user_uuid)
         new_credential = credential_utils.create(user_uuid, credential_data)
         return new_credential
+
+
+@api.route("users/<user_uuid>/credentials/<credential_uuid>/")
+class CredentialDetailAPI(MethodView):
+    @api.arguments(CredentialUpdateSchema, location="json")
+    @api.response(200, CredentialSchema)
+    def patch(self, credential_data, user_uuid, credential_uuid):
+        """Update the status of a credential"""
+        user_uuid = uuid.UUID(user_uuid)
+        credential_uuid = uuid.UUID(credential_uuid)
+        update_credential = credential_utils.update(
+            user_uuid, credential_uuid, credential_data
+        )
+        return update_credential

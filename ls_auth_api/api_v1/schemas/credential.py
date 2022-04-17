@@ -23,10 +23,12 @@ class CredentialSchema(OrderedBaseSchema):
     holder = fields.UUID()
     skill = fields.UUID()
     issuer = fields.UUID()
-    status = fields.String(
-        dump_only=True
-    )  # Use for self-credentialing / requested / etc?
+    status = fields.String()
 
 
 class CredentialManySchema(OrderedBaseSchema):
     credentials = fields.List(fields.Nested(lambda: CredentialSchema))
+
+
+class CredentialUpdateSchema(OrderedBaseSchema):
+    status = fields.String()
