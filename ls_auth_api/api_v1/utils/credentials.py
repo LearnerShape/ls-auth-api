@@ -18,6 +18,7 @@ from flask import abort
 
 from ls_auth_api import models
 from ls_auth_api.models import db
+from ls_auth_api.services import create_credential
 
 
 def format_credential(credential):
@@ -65,6 +66,8 @@ def create(user_uuid, credential_data):
         holder_id=credential_data["holder"],
         status=credential_data["status"],
     )
+    if credential_data["status"] == "Issued":
+        blockchain_credential = create_credential(new_credential)
     db.session.add(new_credential)
     db.session.commit()
     return format_credential(new_credential)
@@ -85,6 +88,7 @@ def update(user_uuid, credential_uuid, credential_data):
         db.session.add(current_credential)
         db.session.commit()
         # TODO: blockchain integration
+        blockchain_credential = create_credential(current_credential)
     elif (current_status == "Issued") and (new_status == "Revoked"):
         # Revoke credential
         current_credential.status = new_status

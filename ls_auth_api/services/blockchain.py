@@ -20,6 +20,8 @@ import requests
 import string
 from urllib.parse import urljoin
 
+from ls_auth_api import models
+from ls_auth_api.models import db
 from .word_list import word_list
 
 
@@ -72,8 +74,47 @@ def check_DID_status(self, operation_id):
     pass
 
 
-def create_credential(self):
+def _prepare_credential(credential):
+    """Prepare the request for creating a new credential"""
+    issuer_did = (
+        models.DID.query.filter(models.DID.owner_id == credential.issuer_id)
+        .filter(models.DID.primary == True)
+        .all()
+    )
+    holder_did = (
+        models.DID.query.filter(models.DID.owner_id == credential.holder_id)
+        .filter(models.DID.primary == True)
+        .all()
+    )
+    if len(issuer_did) != 1:
+        abort(403)
+    if len(holder_did) != 1:
+        abort(403)
+    issuer_did = issuer_did[0]
+    holder_did = holder_did[0]
+    skill = models.Skill.query.filter(models.Skill.id == credential.skill_id).first()
+    return {
+        "credential": credential,
+        "issuer_did": issuer_did,
+        "holder_did": holder_did,
+        "skill": skill,
+    }
+
+
+def create_credential(credential):
     """Create a new credential"""
+    new_credential = _prepare_credential(credential)
+    if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:
+        return _create_credential_testing(new_credential)
+    return _create_credential_blockchain(new_credential)
+
+
+def _create_credential_testing(new_credential):
+    # TODO: Identify the key items to return when SDK is working
+    return {"batch_operation_id": random.randint(0, 1e8)}
+
+
+def _create_credential_blockchain(new_credential):
     pass
 
 
