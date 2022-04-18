@@ -7,8 +7,9 @@ python-dateutil
 pytz
 bs4
 gunicorn
-flask-migrate 
+flask-migrate
 flask-sqlalchemy
 marshmallow
 flask-smorest
 Flask-CeleryExt
+requests

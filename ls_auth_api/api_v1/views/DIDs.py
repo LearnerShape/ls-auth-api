@@ -17,7 +17,7 @@ from flask.views import MethodView
 from flask import g
 from flask_smorest import abort
 from marshmallow import ValidationError
-
+import uuid
 import pdb
 
 from ls_auth_api.api_v1 import api
@@ -32,6 +32,7 @@ class DIDsAPI(MethodView):
         """Get DIDs
 
         Get a list of DIDs for a user"""
+        user_uuid = uuid.UUID(user_uuid)
         DIDs = DID_utils.get_details(user_uuid)
         return {"DIDs": DIDs}
 
@@ -41,6 +42,7 @@ class DIDsAPI(MethodView):
         """Create a DID
 
         Create a new DID"""
+        user_uuid = uuid.UUID(user_uuid)
         new_DID = DID_utils.create(user_uuid, DID_data)
         return new_DID
 
@@ -52,6 +54,7 @@ class DIDDetailAPI(MethodView):
         """Get DID detail
 
         Get detailed information on a DID"""
+        user_uuid = uuid.UUID(user_uuid)
         DID = DID_utils.get_details(
             user_uuid,
             [

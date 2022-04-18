@@ -13,10 +13,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from flask import abort
 import pdb
 
 from ls_auth_api import models
 from ls_auth_api.models import db
+from ls_auth_api.services import create_DID
 
 
 def format_DID(DID):
@@ -47,11 +49,29 @@ def get_details(user_uuid, DID_id=None):
 
 def create(user_uuid, DID_data):
     """Create a new DID"""
+    if user_uuid != DID_data["owner"]:
+        abort(403)
+    if DID_data["status"] not in ["Published", "Unpublished"]:
+        abort(403)
+    if DID_data["primary"] == True:
+        existing_DIDs = models.DID.query.filter(models.DID.owner_id == user_uuid).all()
+        for i in existing_DIDs:
+            if i.primary == True:
+                i.primary = False
+                db.session.add(i)
     new_DID = models.DID(
-        owner_id=user_uuid,
-        primary=DID_data["primary"],
-        status=DID_data["status"],
+        owner_id=user_uuid, primary=DID_data["primary"], status="Unpublished"
     )
+    register_did = True if (DID_data["status"] == "Published") else False
+    blockchain_did = create_DID(register_did=register_did)
+    new_DID.DID = blockchain_did["did_canonical"]
+    new_DID.did_long_form = blockchain_did["did_long_form"]
+    new_DID.seed = blockchain_did["seed"]
+    new_DID.passphrase = blockchain_did["passphrase"]
+    if register_did:
+        new_DID.creation_operation_id = blockchain_did["creation_operation_id"]
+        new_DID.state_hash = blockchain_did["hash"]
+        new_DID.status = "Pending publication"
     db.session.add(new_DID)
     db.session.commit()
     return format_DID(new_DID)

@@ -13,31 +13,4 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
-
-from . import db
-
-
-class DID(db.Model):
-    """A DID record
-
-    A distributed ID for use in credential creation"""
-
-    id = db.Column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4,
-        unique=True,
-        nullable=False,
-    )
-    DID = db.Column(db.Text)
-    owner_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"))
-    primary = db.Column(db.Boolean)
-    status = db.Column(db.Text)
-    seed = db.Column(db.Text)
-    passphrase = db.Column(db.Text)
-    did_long_form = db.Column(db.Text)
-    creation_operation_id = db.Column(db.Text)
-    state_hash = db.Column(db.Text)
+from .blockchain import create_DID

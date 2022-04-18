@@ -28,6 +28,7 @@ access_id, secret_key = "a", "b"
 def api_client():
     app = create_app()
     app.config["API_ACCESS_ID"], app.config["API_SECRET_KEY"] = access_id, secret_key
+    app.config["INTERACT_WITH_BLOCKCHAIN"] = False
     with app.test_client() as client:
         yield client
 

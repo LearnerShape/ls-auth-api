@@ -23,6 +23,7 @@ from ls_auth_api.models import db
 from ls_auth_api.api_v1 import api
 from ls_auth_api.api_v1.schemas import UserSchema, UserManySchema
 from ls_auth_api.api_v1.utils import users as user_utils
+from ls_auth_api.api_v1.utils import DID as DID_utils
 
 
 @api.route("users/")
@@ -42,4 +43,8 @@ class UsersAPI(MethodView):
 
         Create a new user"""
         new_user = user_utils.create(user_data)
+        new_DID = DID_utils.create(
+            new_user["id"],
+            {"owner": new_user["id"], "primary": True, "status": "Published"},
+        )
         return new_user
