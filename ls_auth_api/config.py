@@ -26,8 +26,17 @@ SQLALCHEMY_DATABASE_URI = os.environ.get(
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Blockchain config
-BLOCKCHAIN_SERVICE_URI = "http://blockchain/"
-INTERACT_WITH_BLOCKCHAIN = True
+BLOCKCHAIN_SERVICE_URI = os.environ.get("BLOCKCHAIN_SERVICE_URI", "http://blockchain/")
+INTERACT_WITH_BLOCKCHAIN = (
+    True
+    if (
+        os.environ.get(
+            "INTERACT_WITH_BLOCKCHAIN",
+        )
+        in ["True", "true"]
+    )
+    else False
+)
 
 # API config
 API_ACCESS_ID = os.environ.get(
