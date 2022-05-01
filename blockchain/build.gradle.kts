@@ -26,22 +26,25 @@ repositories {
 }
 
 dependencies {
+  // Align versions of all Kotlin components
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
+
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
   // needed for cryptography primitives implementation
-  implementation("io.iohk.atala:prism-crypto:1.2.0")
+  implementation("io.iohk.atala:prism-crypto:v1.3.2")
 
   // needed to deal with DIDs
-  implementation("io.iohk.atala:prism-identity:1.2.0")
+  implementation("io.iohk.atala:prism-identity:v1.3.2")
 
   // needed to deal with credentials
-  implementation("io.iohk.atala:prism-credentials:1.2.0")
+  implementation("io.iohk.atala:prism-credentials:v1.3.2")
 
   // needed to interact with PRISM Node service
-  implementation("io.iohk.atala:prism-api:1.2.0")
+  implementation("io.iohk.atala:prism-api:v1.3.2")
 
   // needed for the credential content, bring the latest version
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
@@ -59,12 +62,12 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "11"
-	}
-}
+// tasks.withType<KotlinCompile> {
+// 	kotlinOptions {
+// 		freeCompilerArgs = listOf("-Xjsr305=strict")
+// 		jvmTarget = "11"
+// 	}
+// }
 
 tasks.withType<Test> {
 	useJUnitPlatform()

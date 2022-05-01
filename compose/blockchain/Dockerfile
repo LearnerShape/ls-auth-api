@@ -4,9 +4,8 @@ VOLUME /tmp
 RUN mkdir /work
 COPY --chown=gradle:gradle ./blockchain /work
 WORKDIR /work
-COPY .prism_password /.prism_password
-RUN PRISM_SDK_PASSWORD=$(cat /.prism_password) gradle build --no-daemon
-
+ARG PRISM_SDK_PASSWORD
+RUN gradle build --no-daemon
 
 # Part 2: Run
 FROM openjdk:11
