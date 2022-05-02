@@ -66,11 +66,11 @@ def create(user_uuid, DID_data):
     blockchain_did = create_DID(register_did=register_did)
     new_DID.DID = blockchain_did["did_canonical"]
     new_DID.did_long_form = blockchain_did["did_long_form"]
-    new_DID.seed = blockchain_did["seed"]
+    new_DID.mnemonic = blockchain_did["mnemonic"]
     new_DID.passphrase = blockchain_did["passphrase"]
     if register_did:
         new_DID.creation_operation_id = blockchain_did["creation_operation_id"]
-        new_DID.state_hash = blockchain_did["hash"]
+        new_DID.state_hash = blockchain_did["operation_hash"]
         new_DID.status = "Pending publication"
     db.session.add(new_DID)
     db.session.commit()

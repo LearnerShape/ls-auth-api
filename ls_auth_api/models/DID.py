@@ -36,7 +36,7 @@ class DID(db.Model):
     owner_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"))
     primary = db.Column(db.Boolean)
     status = db.Column(db.Text)
-    seed = db.Column(db.Text)
+    mnemonic = db.Column(db.Text)
     passphrase = db.Column(db.Text)
     did_long_form = db.Column(db.Text)
     creation_operation_id = db.Column(db.Text)

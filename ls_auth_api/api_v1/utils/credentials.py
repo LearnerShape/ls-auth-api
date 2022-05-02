@@ -68,6 +68,19 @@ def create(user_uuid, credential_data):
     )
     if credential_data["status"] == "Issued":
         blockchain_credential = create_credential(new_credential)
+        new_credential.signed_credential_content = blockchain_credential[
+            "signed_credential_content"
+        ]
+        new_credential.signed_credential_canonical = blockchain_credential[
+            "signed_credential_canonical"
+        ]
+        new_credential.signed_credential_proof = blockchain_credential[
+            "signed_credential_proof"
+        ]
+        new_credential.creation_operation_id = blockchain_credential[
+            "creation_operation_id"
+        ]
+        new_credential.status = "Pending Issuance"
     db.session.add(new_credential)
     db.session.commit()
     return format_credential(new_credential)
@@ -89,6 +102,19 @@ def update(user_uuid, credential_uuid, credential_data):
         db.session.commit()
         # TODO: blockchain integration
         blockchain_credential = create_credential(current_credential)
+        current_credential.signed_credential_content = blockchain_credential[
+            "signed_credential_content"
+        ]
+        current_credential.signed_credential_canonical = blockchain_credential[
+            "signed_credential_canonical"
+        ]
+        current_credential.signed_credential_proof = blockchain_credential[
+            "signed_credential_proof"
+        ]
+        current_credential.creation_operation_id = blockchain_credential[
+            "creation_operation_id"
+        ]
+        current_credential.status = "Pending Issuance"
     elif (current_status == "Issued") and (new_status == "Revoked"):
         # Revoke credential
         current_credential.status = new_status

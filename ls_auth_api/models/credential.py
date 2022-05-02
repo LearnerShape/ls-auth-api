@@ -34,3 +34,7 @@ class Credential(db.Model):
     issuer_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"))
     status = db.Column(db.Text)
     holder_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"))
+    signed_credential_content = db.Column(db.Text)
+    signed_credential_canonical = db.Column(db.Text)
+    signed_credential_proof = db.Column(db.Text)
+    creation_operation_id = db.Column(db.Text)
