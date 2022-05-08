@@ -45,3 +45,8 @@ services:
 volumes:
     lsdb_data:
         driver: local
+
+networks:
+    default:
+        external:
+            name: ui-api-bridge
