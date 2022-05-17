@@ -24,6 +24,12 @@ class CredentialSchema(OrderedBaseSchema):
     skill = fields.UUID()
     issuer = fields.UUID()
     status = fields.String()
+    creation_date = fields.DateTime()
+    submission_date = fields.DateTime()
+    submission_transaction_id = fields.String()
+    revocation_date = fields.DateTime()
+    revocation_transaction_id = fields.String()
+    last_check_date = fields.DateTime()
 
 
 class CredentialManySchema(OrderedBaseSchema):

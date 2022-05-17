@@ -12,13 +12,13 @@
 
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+from datetime import datetime
 from flask import abort
 import pdb
 
 from ls_auth_api import models
 from ls_auth_api.models import db
-from ls_auth_api.services import create_DID
+from ls_auth_api.services.blockchain import create_DID
 
 
 def format_DID(DID):
@@ -31,6 +31,10 @@ def format_DID(DID):
             ["owner", "owner_id"],
             ["primary", "primary"],
             ["status", "status"],
+            ["creation_date", "creation_date"],
+            ["submission_date", "submission_date"],
+            ["submission_transaction_id", "submission_transaction_id"],
+            ["last_check_date", "last_check_date"],
         ]
     }
 
@@ -60,7 +64,10 @@ def create(user_uuid, DID_data):
                 i.primary = False
                 db.session.add(i)
     new_DID = models.DID(
-        owner_id=user_uuid, primary=DID_data["primary"], status="Unpublished"
+        owner_id=user_uuid,
+        primary=DID_data["primary"],
+        status="Unpublished",
+        creation_date=datetime.now(),
     )
     register_did = True if (DID_data["status"] == "Published") else False
     blockchain_did = create_DID(register_did=register_did)
@@ -72,6 +79,7 @@ def create(user_uuid, DID_data):
         new_DID.creation_operation_id = blockchain_did["creation_operation_id"]
         new_DID.state_hash = blockchain_did["operation_hash"]
         new_DID.status = "Pending publication"
+        new_DID.submission_date = datetime.now()
     db.session.add(new_DID)
     db.session.commit()
     return format_DID(new_DID)

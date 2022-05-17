@@ -24,6 +24,10 @@ class DIDSchema(OrderedBaseSchema):
     owner = fields.UUID()
     primary = fields.Boolean()
     status = fields.String()
+    creation_date = fields.DateTime()
+    submission_date = fields.DateTime()
+    submission_transaction_id = fields.String()
+    last_check_date = fields.DateTime()
 
 
 class DIDManySchema(OrderedBaseSchema):

@@ -41,3 +41,7 @@ class DID(db.Model):
     did_long_form = db.Column(db.Text)
     creation_operation_id = db.Column(db.Text)
     state_hash = db.Column(db.Text)
+    creation_date = db.Column(db.DateTime)
+    submission_date = db.Column(db.DateTime)
+    submission_transaction_id = db.Column(db.Text)
+    last_check_date = db.Column(db.DateTime)

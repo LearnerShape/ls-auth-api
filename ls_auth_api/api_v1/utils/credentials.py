@@ -14,11 +14,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pdb
+from datetime import datetime
 from flask import abort
 
 from ls_auth_api import models
 from ls_auth_api.models import db
-from ls_auth_api.services import create_credential
+from ls_auth_api.services.blockchain import create_credential, revoke_credential
 
 
 def format_credential(credential):
@@ -31,6 +32,12 @@ def format_credential(credential):
             ["issuer", "issuer_id"],
             ["status", "status"],
             ["holder", "holder_id"],
+            ["creation_date", "creation_date"],
+            ["submission_date", "submission_date"],
+            ["submission_transaction_id", "submission_transaction_id"],
+            ["revocation_date", "revocation_date"],
+            ["revocation_transaction_id", "revocation_transaction_id"],
+            ["last_check_date", "last_check_date"],
         ]
     }
 
@@ -50,6 +57,22 @@ def get_details(user_uuid, credential_id=None):
     return output
 
 
+def _update_db_from_blockchain(credential, blockchain):
+    credential.signed_credential_content = blockchain["signed_credential_content"]
+    credential.signed_credential_canonical = blockchain["signed_credential_canonical"]
+    credential.signed_credential_proof = blockchain["signed_credential_proof"]
+    credential.creation_operation_id = blockchain["creation_operation_id"]
+    credential.signed_credential_hash = blockchain["signed_credential_hash"]
+    credential.creation_operation_hash = blockchain["operation_hash"]
+    credential.batch_id = blockchain["batch_id"]
+    return credential
+
+
+def _update_db_from_blockchain_revoke(credential, blockchain):
+    credential.revocation_operation_id = blockchain["revocation_operation_id"]
+    return credential
+
+
 def create(user_uuid, credential_data):
     """Create a new credential"""
     if user_uuid not in [credential_data["issuer"], credential_data["holder"]]:
@@ -65,22 +88,15 @@ def create(user_uuid, credential_data):
         issuer_id=credential_data["issuer"],
         holder_id=credential_data["holder"],
         status=credential_data["status"],
+        creation_date=datetime.now(),
     )
     if credential_data["status"] == "Issued":
         blockchain_credential = create_credential(new_credential)
-        new_credential.signed_credential_content = blockchain_credential[
-            "signed_credential_content"
-        ]
-        new_credential.signed_credential_canonical = blockchain_credential[
-            "signed_credential_canonical"
-        ]
-        new_credential.signed_credential_proof = blockchain_credential[
-            "signed_credential_proof"
-        ]
-        new_credential.creation_operation_id = blockchain_credential[
-            "creation_operation_id"
-        ]
+        new_credential = _update_db_from_blockchain(
+            new_credential, blockchain_credential
+        )
         new_credential.status = "Pending Issuance"
+        new_credential.submission_date = datetime.now()
     db.session.add(new_credential)
     db.session.commit()
     return format_credential(new_credential)
@@ -97,31 +113,23 @@ def update(user_uuid, credential_uuid, credential_data):
         abort(403)
     if (current_status == "Requested") and (new_status == "Issued"):
         # Issue credential
-        current_credential.status = new_status
-        db.session.add(current_credential)
-        db.session.commit()
-        # TODO: blockchain integration
         blockchain_credential = create_credential(current_credential)
-        current_credential.signed_credential_content = blockchain_credential[
-            "signed_credential_content"
-        ]
-        current_credential.signed_credential_canonical = blockchain_credential[
-            "signed_credential_canonical"
-        ]
-        current_credential.signed_credential_proof = blockchain_credential[
-            "signed_credential_proof"
-        ]
-        current_credential.creation_operation_id = blockchain_credential[
-            "creation_operation_id"
-        ]
+        current_credential = _update_db_from_blockchain(
+            current_credential, blockchain_credential
+        )
         current_credential.status = "Pending Issuance"
+        current_credential.submission_date = datetime.now()
     elif (current_status == "Issued") and (new_status == "Revoked"):
         # Revoke credential
-        current_credential.status = new_status
-        db.session.add(current_credential)
-        db.session.commit()
-        # TODO blockchain integration
+        blockchain_revoke = revoke_credential
+        current_credential = _update_db_from_blockchain_revoke(
+            current_credential, blockchain_revoke
+        )
+        current_credential.status = "Pending Revocation"
+        current_credential.revocation_date = datetime.now()
     else:
         # Requested transition is not available
         abort(409)
+    db.session.add(current_credential)
+    db.session.commit()
     return current_credential
