@@ -62,7 +62,7 @@ def create_DID(register_did=True):
     return _create_DID_blockchain(new_did)
 
 
-def check_DID_status(self, operation_id):
+def check_DID_status(operation_id):
     """Check whether DID is registered on blockchain"""
     payload = {"creation_operation_id": operation_id}
     if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:

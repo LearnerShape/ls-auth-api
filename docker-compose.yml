@@ -29,6 +29,28 @@ services:
         ports:
           - "5432:5432"
 
+    broker:
+        image: rabbitmq:3.9-management
+        expose:
+          - "5672"
+        ports:
+          - "5672:5672"
+          - "15672:15672"
+
+    worker:
+        build:
+          context: .
+          dockerfile: ./compose/worker/Dockerfile
+        image: ls-auth-api_worker
+        volumes:
+          - "./:/app/app"
+        env_file: .env
+        working_dir: /app/app
+        command: ./start_celery_worker.sh
+        links:
+          - database
+          - broker
+
 
     blockchain:
       build:

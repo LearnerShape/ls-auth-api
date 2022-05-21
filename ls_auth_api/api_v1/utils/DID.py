@@ -12,13 +12,14 @@
 
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from celery import shared_task
 from datetime import datetime
 from flask import abort
 import pdb
 
 from ls_auth_api import models
 from ls_auth_api.models import db
-from ls_auth_api.services.blockchain import create_DID
+from ls_auth_api.services import blockchain
 
 
 def format_DID(DID):
@@ -70,7 +71,7 @@ def create(user_uuid, DID_data):
         creation_date=datetime.now(),
     )
     register_did = True if (DID_data["status"] == "Published") else False
-    blockchain_did = create_DID(register_did=register_did)
+    blockchain_did = blockchain.create_DID(register_did=register_did)
     new_DID.DID = blockchain_did["did_canonical"]
     new_DID.did_long_form = blockchain_did["did_long_form"]
     new_DID.mnemonic = blockchain_did["mnemonic"]
@@ -82,4 +83,23 @@ def create(user_uuid, DID_data):
         new_DID.submission_date = datetime.now()
     db.session.add(new_DID)
     db.session.commit()
+    check_DID_status.apply_async((new_DID.id,), countdown=2 * 60)
     return format_DID(new_DID)
+
+
+@shared_task
+def check_DID_status(DID_id):
+    DID = models.DID.query.filter(models.DID.id == DID_id).first()
+    try:
+        results = blockchain.check_DID_status(DID.creation_operation_id)
+    except:
+        check_DID_status.apply_async((DID.id,), countdown=2 * 60)
+        return
+    if results["status"] != "CONFIRMED_AND_APPLIED":
+        check_DID_status.apply_async((DID.id,), countdown=2 * 60)
+        return
+    DID.status = "Published"
+    DID.submission_transaction_id = results["transaction_id"]
+    DID.last_check_date = datetime.now()
+    db.session.add(DID)
+    db.session.commit()
