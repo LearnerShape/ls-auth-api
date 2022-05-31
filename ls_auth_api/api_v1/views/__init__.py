@@ -18,4 +18,4 @@ from .users import UsersAPI
 from .credentials import CredentialsAPI
 from .skills import SkillsAPI, SkillDetailAPI
 from .DIDs import DIDsAPI, DIDDetailAPI
-from .presentations import PresentationsAPI, PresentationDetailAPI
+#from .presentations import PresentationsAPI, PresentationDetailAPI
