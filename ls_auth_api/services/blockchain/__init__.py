@@ -154,8 +154,8 @@ def revoke_credential(credential):
     """Revoke a credential"""
     payload = _prepare_credential_revocation(credential)
     if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:
-        return _revoke_credential_testing(operation_id)
-    return _revoke_credential_blockchain(operation_id)
+        return _revoke_credential_testing(payload)
+    return _revoke_credential_blockchain(payload)
 
 
 def check_credential_revocation(operation_id):
