@@ -141,7 +141,7 @@ def _prepare_credential_revocation(credential):
         abort(403)
     issuer_did = issuer_did[0]
     payload = {
-        "issuer_mnemonic": issuer_did.mnemonic,
+        "issuer_mnemonic": issuer_did.mnemonic.split(" "),
         "issuer_passphrase": issuer_did.passphrase,
         "operation_hash": credential.creation_operation_hash,
         "batch_id": credential.batch_id,
