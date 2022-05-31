@@ -125,7 +125,7 @@ def update(user_uuid, credential_uuid, credential_data):
         check_issuance_status.apply_async((current_credential.id,), countdown=2 * 60)
     elif (current_status == "Issued") and (new_status == "Revoked"):
         # Revoke credential
-        blockchain_revoke = blockchain.revoke_credential
+        blockchain_revoke = blockchain.revoke_credential(current_credential)
         current_credential = _update_db_from_blockchain_revoke(
             current_credential, blockchain_revoke
         )
