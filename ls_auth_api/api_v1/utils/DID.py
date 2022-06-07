@@ -71,7 +71,26 @@ def create(user_uuid, DID_data):
         creation_date=datetime.now(),
     )
     register_did = True if (DID_data["status"] == "Published") else False
-    blockchain_did = blockchain.create_DID(register_did=register_did)
+    if register_did:
+        new_DID.status = "Pending publication"
+    db.session.add(new_DID)
+    db.session.commit()
+    register_DID.apply_async(
+        (new_DID.id,),
+    )
+    return format_DID(new_DID)
+
+
+@shared_task
+def register_DID(DID_id):
+    """Create/register a DID"""
+    new_DID = models.DID.query.filter(models.DID.id == DID_id).first()
+    register_did = True if (new_DID.status == "Pending publication") else False
+    try:
+        blockchain_did = blockchain.create_DID(register_did=register_did)
+    except:
+        register_DID.apply_async((DID_id,), countdown=2 * 60)
+        return
     new_DID.DID = blockchain_did["did_canonical"]
     new_DID.did_long_form = blockchain_did["did_long_form"]
     new_DID.mnemonic = blockchain_did["mnemonic"]
@@ -79,12 +98,11 @@ def create(user_uuid, DID_data):
     if register_did:
         new_DID.creation_operation_id = blockchain_did["creation_operation_id"]
         new_DID.state_hash = blockchain_did["operation_hash"]
-        new_DID.status = "Pending publication"
+        # new_DID.status = "Pending publication"
         new_DID.submission_date = datetime.now()
     db.session.add(new_DID)
     db.session.commit()
     check_DID_status.apply_async((new_DID.id,), countdown=2 * 60)
-    return format_DID(new_DID)
 
 
 @shared_task

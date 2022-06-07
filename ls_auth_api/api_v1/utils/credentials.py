@@ -92,16 +92,14 @@ def create(user_uuid, credential_data):
         creation_date=datetime.now(),
     )
     if credential_data["status"] == "Issued":
-        blockchain_credential = blockchain.create_credential(new_credential)
-        new_credential = _update_db_from_blockchain(
-            new_credential, blockchain_credential
-        )
         new_credential.status = "Pending Issuance"
         new_credential.submission_date = datetime.now()
     db.session.add(new_credential)
     db.session.commit()
     if new_credential.status == "Pending Issuance":
-        check_issuance_status.apply_async((new_credential.id,), countdown=2 * 60)
+        issue_credential.apply_async(
+            (new_credential.id,),
+        )
     return format_credential(new_credential)
 
 
@@ -116,28 +114,43 @@ def update(user_uuid, credential_uuid, credential_data):
         abort(403)
     if (current_status == "Requested") and (new_status == "Issued"):
         # Issue credential
-        blockchain_credential = blockchain.create_credential(current_credential)
-        current_credential = _update_db_from_blockchain(
-            current_credential, blockchain_credential
-        )
         current_credential.status = "Pending Issuance"
         current_credential.submission_date = datetime.now()
-        check_issuance_status.apply_async((current_credential.id,), countdown=2 * 60)
+        db.session.add(current_credential)
+        db.session.commit()
+        issue_credential.apply_async(
+            (current_credential.id,),
+        )
     elif (current_status == "Issued") and (new_status == "Revoked"):
         # Revoke credential
-        blockchain_revoke = blockchain.revoke_credential(current_credential)
-        current_credential = _update_db_from_blockchain_revoke(
-            current_credential, blockchain_revoke
-        )
         current_credential.status = "Pending Revocation"
         current_credential.revocation_date = datetime.now()
-        check_revocation_status.apply_async((current_credential.id,), countdown=2 * 60)
+        db.session.add(current_credential)
+        db.session.commit()
+        revoke_credential.apply_async(
+            (current_credential.id,),
+        )
     else:
         # Requested transition is not available
         abort(409)
-    db.session.add(current_credential)
-    db.session.commit()
     return current_credential
+
+
+@shared_task
+def issue_credential(credential_uuid):
+    """Issue credential on blockchain"""
+    cred = models.Credential.query.filter(
+        models.Credential.id == credential_uuid
+    ).first()
+    try:
+        blockchain_credential = blockchain.create_credential(cred)
+    except:
+        issue_credential.apply_async((credential_uuid,), countdown=2 * 60)
+        return
+    cred = _update_db_from_blockchain(cred, blockchain_credential)
+    db.session.add(cred)
+    db.session.commit()
+    check_issuance_status.apply_async((cred.id,), countdown=2 * 60)
 
 
 @shared_task
@@ -175,6 +188,23 @@ def verify_status(credential_uuid):
     cred.last_check_date = datetime.now()
     db.session.add(cred)
     db.session.commit()
+
+
+@shared_task
+def revoke_credential(credential_uuid):
+    """Revoke a credential"""
+    cred = models.Credential.query.filter(
+        models.Credential.id == credential_uuid
+    ).first()
+    try:
+        blockchain_revoke = blockchain.revoke_credential(cred)
+    except:
+        revoke_credential.apply_async((credential_uuid,), countdown=2 * 60)
+        return
+    cred = _update_db_from_blockchain_revoke(cred, blockchain_revoke)
+    db.session.add(cred)
+    db.session.commit()
+    check_revocation_status.apply_async((cred.id,), countdown=2 * 60)
 
 
 @shared_task
