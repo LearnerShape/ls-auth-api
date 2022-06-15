@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.10
 
 #
 # Installing python packages and bringing in code
