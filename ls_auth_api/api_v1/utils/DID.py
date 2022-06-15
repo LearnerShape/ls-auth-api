@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from celery import shared_task
 from datetime import datetime
-from flask import abort
+from flask import abort, current_app
 import pdb
 
 from ls_auth_api import models
@@ -54,6 +54,7 @@ def get_details(user_uuid, DID_id=None):
 
 def create(user_uuid, DID_data):
     """Create a new DID"""
+    current_app.logger.info(f"Creating new DID for user {user_uuid}")
     if user_uuid != DID_data["owner"]:
         abort(403)
     if DID_data["status"] not in ["Published", "Unpublished"]:

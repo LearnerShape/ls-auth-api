@@ -16,7 +16,7 @@
 import pdb
 from celery import shared_task
 from datetime import datetime
-from flask import abort
+from flask import abort, current_app
 
 from ls_auth_api import models
 from ls_auth_api.models import db
@@ -76,6 +76,7 @@ def _update_db_from_blockchain_revoke(credential, blockchain):
 
 def create(user_uuid, credential_data):
     """Create a new credential"""
+    current_app.logger.info(f"Creating new credential for user {user_uuid}")
     if user_uuid not in [credential_data["issuer"], credential_data["holder"]]:
         abort(403)
     if credential_data["status"] not in ["Requested", "Issued"]:
@@ -105,6 +106,9 @@ def create(user_uuid, credential_data):
 
 def update(user_uuid, credential_uuid, credential_data):
     """Update the status of a credential"""
+    current_app.logger.info(
+        f"Updating credential {credential_uuid} for user {user_uuid}"
+    )
     current_credential = models.Credential.query.filter(
         models.Credential.id == credential_uuid
     ).first()

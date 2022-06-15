@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from celery.utils.log import get_task_logger
 from flask import current_app
 import pdb
 import random
@@ -40,6 +41,8 @@ from .live import (
     _check_credential_revocation_blockchain,
 )
 
+logger = get_task_logger(__name__)
+
 
 def generate_passphrase(n=6, glue="-"):
     """Generate a passphrase
@@ -56,6 +59,7 @@ def _prepare_DID_creation(register_did=True):
 
 def create_DID(register_did=True):
     """Create a new DID"""
+    logger.info("Creating new DID")
     new_did = _prepare_DID_creation(register_did=register_did)
     if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:
         return _create_DID_testing(new_did)
@@ -64,6 +68,7 @@ def create_DID(register_did=True):
 
 def check_DID_status(operation_id):
     """Check whether DID is registered on blockchain"""
+    logger.info(f"Checking status for operation {operation_id}")
     payload = {"creation_operation_id": operation_id}
     if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:
         return _check_DID_status_testing(operation_id)
@@ -99,6 +104,7 @@ def _prepare_credential(credential):
 
 def create_credential(credential):
     """Create a new credential"""
+    logger.info(f"Creating credential {credential.id}")
     new_credential = _prepare_credential(credential)
     if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:
         return _create_credential_testing(new_credential)
@@ -107,6 +113,7 @@ def create_credential(credential):
 
 def check_credential_status(operation_id):
     """Check the status of a credential"""
+    logger.info(f"Checking status for operation {operation_id}")
     payload = {"creation_operation_id": operation_id}
     if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:
         return _check_credential_status_testing(operation_id)
@@ -124,6 +131,7 @@ def _prepare_verify_credential(credential):
 
 def verify_credential(credential):
     """Verify current status of a credential"""
+    logger.info(f"Revoking credential {credential.id}")
     payload = _prepare_verify_credential(credential)
     if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:
         return _verify_credential_testing(operation_id)
@@ -152,6 +160,7 @@ def _prepare_credential_revocation(credential):
 
 def revoke_credential(credential):
     """Revoke a credential"""
+    logger.info(f"Revoking credential {credential.id}")
     payload = _prepare_credential_revocation(credential)
     if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:
         return _revoke_credential_testing(payload)
@@ -160,6 +169,7 @@ def revoke_credential(credential):
 
 def check_credential_revocation(operation_id):
     """Check status of credential revocation request"""
+    logger.info(f"Checking status for operation {operation_id}")
     payload = {"creation_operation_id": operation_id}
     if not current_app.config["INTERACT_WITH_BLOCKCHAIN"]:
         return _check_credential_revocation_testing(operation_id)
