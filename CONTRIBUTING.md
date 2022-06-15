@@ -25,8 +25,6 @@ Please report bugs on our issues page. The more information you can provide the 
 
 If you think a bug may have security implications please report it privately to jonathan@learnershape.com. Your report will be acknowledged and a plan established to address the issue. By having a fix available before a security issue is announced the public impact is hopefully reduced.
 
-At Learnershape we are running lsgraph on a private subnet preventing direct access. This provides additional security benefits, but we are also committed to keeping lsgraph as secure as possible when running in a less secure environment.
-
 
 # Contributing
 
@@ -36,7 +34,7 @@ ls-auth-api is a young project under active development. There is a lot to do an
 
 If you want to contribute but do not know what to work on take a look at the open issues or contact jonathan@learnershape.com.
 
-If you already have a new feature in mind the best place to start is creating a new feature request on our issues page. This avoids duplicated effort and ensures we will be able to merge your contribution into lsgraph when completed.
+If you already have a new feature in mind the best place to start is creating a new feature request on our issues page. This avoids duplicated effort and ensures we will be able to merge your contribution into skillsgraph when completed.
 
 ## license
 
@@ -70,13 +68,15 @@ Automated code linters and formatters can be useful. Black is a popular option.
 
 ## setting up development environment
 
-lsgraph is a flask-based web application with a separate command line interface. A docker-compose file is available for rapidly starting an instance together with a supporting database instance.
+skillsgraph is a flask-based web application with a background worker process and a kotlin-based service for interacting with the Atala Prism service. A docker-compose file is available for rapidly starting all required containers.
 
 ## running tests
 
 The test suite can be run with 
 
 `pytest`
+
+There is only partial support for running the test suite without interacting with the Atala Prism service. Connection to the Atala Prism service can be configured in the .env file.
 
 Areas of the codebase that do not have thorough tests can be found by generating a coverage report. The coverage package must be installed.
 
