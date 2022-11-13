@@ -124,9 +124,14 @@ fun transactionId(oid: AtalaOperationId): String {
     return response.transactionId
 }
 
-val environment = "ppp.atalaprism.io"
-val grpcOptions = GrpcOptions("https", environment, 50053)
+val node_protocol = System.getenv("BLOCKCHAIN_PRISM_PROTOCOL")
+val node_environment = System.getenv("BLOCKCHAIN_PRISM_ENVIRONMENT")
+val node_port = System.getenv("BLOCKCHAIN_PRISM_PORT").toInt()
+val grpcOptions = GrpcOptions(node_protocol, node_environment, node_port)
 val nodeAuthApi = NodeAuthApiImpl(grpcOptions)
+
+
+
 
 @RestController
 @RequestMapping("/api_v1")
@@ -173,12 +178,12 @@ class Application {
         val operation_digest = Sha256Digest.fromHex(check_did.creation_operation_id)
         val operation_id = AtalaOperationId(operation_digest)
         val status = runBlocking {
-            nodeAuthApi.getOperationStatus(operation_id)
+            nodeAuthApi.getOperationInfo(operation_id)
         }
-        check_did.status = AtalaOperationStatus.asString(status)
+        check_did.status = AtalaOperationStatus.asString(status.status)
         if (
-            (status == AtalaOperationStatus.CONFIRMED_AND_APPLIED) ||
-            (status == AtalaOperationStatus.CONFIRMED_AND_REJECTED)
+            (status.status == AtalaOperationStatus.CONFIRMED_AND_APPLIED) ||
+            (status.status == AtalaOperationStatus.CONFIRMED_AND_REJECTED)
         ) {
             val transaction_id = transactionId(operation_id)
             check_did.transaction_id = transaction_id
@@ -242,12 +247,12 @@ class Application {
         val operation_digest = Sha256Digest.fromHex(check_credential.creation_operation_id)
         val operation_id = AtalaOperationId(operation_digest)
         val status = runBlocking {
-            nodeAuthApi.getOperationStatus(operation_id)
+            nodeAuthApi.getOperationInfo(operation_id)
         }
-        check_credential.status = AtalaOperationStatus.asString(status)
+        check_credential.status = AtalaOperationStatus.asString(status.status)
         if (
-            (status == AtalaOperationStatus.CONFIRMED_AND_APPLIED) ||
-            (status == AtalaOperationStatus.CONFIRMED_AND_REJECTED)
+            (status.status == AtalaOperationStatus.CONFIRMED_AND_APPLIED) ||
+            (status.status == AtalaOperationStatus.CONFIRMED_AND_REJECTED)
         ) {
             val transaction_id = transactionId(operation_id)
             check_credential.transaction_id = transaction_id
@@ -313,12 +318,12 @@ class Application {
         val operation_digest = Sha256Digest.fromHex(check_credential.revocation_operation_id)
         val operation_id = AtalaOperationId(operation_digest)
         val status = runBlocking {
-            nodeAuthApi.getOperationStatus(operation_id)
+            nodeAuthApi.getOperationInfo(operation_id)
         }
-        check_credential.status = AtalaOperationStatus.asString(status)
+        check_credential.status = AtalaOperationStatus.asString(status.status)
         if (
-            (status == AtalaOperationStatus.CONFIRMED_AND_APPLIED) ||
-            (status == AtalaOperationStatus.CONFIRMED_AND_REJECTED)
+            (status.status == AtalaOperationStatus.CONFIRMED_AND_APPLIED) ||
+            (status.status == AtalaOperationStatus.CONFIRMED_AND_REJECTED)
         ) {
             val transaction_id = transactionId(operation_id)
             check_credential.transaction_id = transaction_id
