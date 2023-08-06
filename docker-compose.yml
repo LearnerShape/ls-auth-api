@@ -52,19 +52,6 @@ services:
           - broker
 
 
-    blockchain:
-      build:
-        context: .
-        dockerfile: ./compose/blockchain/Dockerfile
-        args:
-          - PRISM_SDK_PASSWORD
-      image: ls-auth-api_blockchain
-      env_file: .env
-      expose:
-        - "8080"
-      ports:
-        - "8080:8080"
-
 volumes:
     lsdb_data:
         driver: local
