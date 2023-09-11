@@ -127,7 +127,8 @@ fun transactionId(oid: AtalaOperationId): String {
 val node_protocol = System.getenv("BLOCKCHAIN_PRISM_PROTOCOL")
 val node_environment = System.getenv("BLOCKCHAIN_PRISM_ENVIRONMENT")
 val node_port = System.getenv("BLOCKCHAIN_PRISM_PORT").toInt()
-val grpcOptions = GrpcOptions(node_protocol, node_environment, node_port)
+val node_token = System.getenv("BLOCKCHAIN_PRISM_TOKEN")
+val grpcOptions = GrpcOptions(node_protocol, node_environment, node_port, node_token)
 val nodeAuthApi = NodeAuthApiImpl(grpcOptions)
 
 
